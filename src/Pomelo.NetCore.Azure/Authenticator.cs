@@ -58,7 +58,7 @@ namespace Pomelo.NetCore.Azure
         /// <returns>Async AzureRESTResponse, i.e. StatusCode and Content</returns>
         internal async Task<AzureRESTResponse> Request(string method, Uri uri, string mime, byte[] requestContent)
         {
-            if (DateTime.UtcNow > _authorizationExpires || _authorizationHdr == null)
+            if (DateTime.UtcNow.AddMinutes(-5) > _authorizationExpires || _authorizationHdr == null)
             {
                 await GetAccessToken();
             }

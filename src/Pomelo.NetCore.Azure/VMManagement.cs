@@ -143,14 +143,80 @@ namespace Pomelo.NetCore.Azure
             return true;
         }
 
-        public RequestResult StartVM(string id)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="vmname"></param>
+        /// <returns></returns>
+        public async Task<bool> StartVirtualMachineAsync(string vmname)
         {
-            throw new NotImplementedException();
+            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+                + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "/start?api-version=2015-05-01-preview");
+
+            var result = await _authenticator.Request("POST", requestUri, string.Empty, new byte[0]);
+            return result.StatusCode == HttpStatusCode.OK || result.StatusCode == HttpStatusCode.Accepted;
         }
 
-        public RequestResult StopVM(string id)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="vmname"></param>
+        /// <returns></returns>
+        public async Task<bool> RestartVirtualMachineAsync(string vmname)
         {
-            throw new NotImplementedException();
+            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+                + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "/restart?api-version=2015-05-01-preview");
+
+            var result = await _authenticator.Request("POST", requestUri, string.Empty, new byte[0]);
+            return result.StatusCode == HttpStatusCode.OK || result.StatusCode == HttpStatusCode.Accepted;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="vmname"></param>
+        /// <returns></returns>
+        public async Task<bool> StopVirtualMachineAsync(string vmname)
+        {
+            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+                + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "/powerOff?api-version=2015-05-01-preview");
+
+            var result = await _authenticator.Request("POST", requestUri, string.Empty, new byte[0]);
+            return result.StatusCode == HttpStatusCode.OK || result.StatusCode == HttpStatusCode.Accepted;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="vmname"></param>
+        /// <returns></returns>
+        public async Task<bool> DeallocateVirtualMachineAsync(string vmname)
+        {
+            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+                + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "/deallocate?api-version=2015-05-01-preview");
+
+            var result = await _authenticator.Request("POST", requestUri, string.Empty, new byte[0]);
+            return result.StatusCode == HttpStatusCode.OK || result.StatusCode == HttpStatusCode.Accepted;
+        }
+
+        /// <summary>
+        /// IT DOESN'T WORK!
+        /// </summary>
+        /// <param name="vmname"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public async Task<bool> UpdatePassword(string vmname, string username, string password)
+        {
+            var request = VMManagementRequestStrings.UPDATE_PASSWORD_EXTENSION.
+                Replace("<vmname>", vmname).Replace("<username>", username).Replace("<password>", password);
+            var requestByteAry = System.Text.Encoding.UTF8.GetBytes(request);
+
+            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+                + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "/extensions/enablevmaccess?api-version=2015-05-01-preview");
+
+            var result = await _authenticator.Request("PUT", requestUri, "application/json", requestByteAry);
+            return result.StatusCode == HttpStatusCode.Accepted || result.StatusCode == HttpStatusCode.OK;
         }
     }
 }

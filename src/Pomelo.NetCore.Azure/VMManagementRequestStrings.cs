@@ -86,5 +86,24 @@ namespace Pomelo.NetCore.Azure
       ]
    }
 }";
+
+        public const string UPDATE_PASSWORD_EXTENSION =
+            @"{
+  ""id"":""/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/<vmname>/extensions/VMAccessForLinux"",
+  ""name"": ""enablevmaccess"",
+  ""type"": ""Microsoft.Compute/virtualMachines/extensions"",
+  ""location"": ""japanwest"",
+  ""properties"": {
+        ""publisher"": ""Microsoft.OSTCExtensions"",
+        ""type"": ""VMAccessForLinux"",
+        ""typeHandlerVersion"": ""1.4"",
+        ""autoUpgradeMinorVersion"": true,
+        ""settings"": {
+            ""username"":""<username>"",
+            ""password"":""<password>"",
+            ""expiration"": ""2099-12-31""
+        }
+    }
+}";
     }
 }
