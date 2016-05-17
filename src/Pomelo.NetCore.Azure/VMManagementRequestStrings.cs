@@ -99,9 +99,10 @@ namespace Pomelo.NetCore.Azure
         ""typeHandlerVersion"": ""1.4"",
         ""autoUpgradeMinorVersion"": true,
         ""settings"": {
+        },
+        ""protectedSettings"": {
             ""username"":""<username>"",
             ""password"":""<password>"",
-            ""expiration"": ""2099-12-31""
         }
     }
 }";

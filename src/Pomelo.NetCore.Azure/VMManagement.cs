@@ -200,13 +200,13 @@ namespace Pomelo.NetCore.Azure
         }
 
         /// <summary>
-        /// IT DOESN'T WORK!
+        /// 
         /// </summary>
         /// <param name="vmname"></param>
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public async Task<bool> UpdatePassword(string vmname, string username, string password)
+        public async Task<bool> UpdateUsernamePassword(string vmname, string username, string password)
         {
             var request = VMManagementRequestStrings.UPDATE_PASSWORD_EXTENSION.
                 Replace("<vmname>", vmname).Replace("<username>", username).Replace("<password>", password);
