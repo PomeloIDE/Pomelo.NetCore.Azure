@@ -1,0 +1,88 @@
+﻿{
+    "id": "/subscriptions/{subscription-id}/resourceGroups/myresourcegroup1/providers/Microsoft.Compute/virtualMachines/myvm1",
+    "name": "myvm1",
+    "type": "Microsoft.Compute/virtualMachines",
+    "location": "westus",
+    "tags": {
+        "department": "finance"
+    },
+    "properties": {
+        "availabilitySet": {
+            "id": "/subscriptions/{subscription-id}/resourceGroups/myresourcegroup1/providers/Microsoft.Compute/availabilitySets/myav1"
+        },
+        "hardwareProfile": {
+            "vmSize": "Standard_A0"
+        },
+        "storageProfile": {
+            "imageReference": {
+                "publisher": "MicrosoftWindowsServerEssentials",
+                "offer": "WindowsServerEssentials",
+                "sku": "WindowsServerEssentials",
+                "version": "latest"
+            },
+            "osDisk": {
+                "name": "myosdisk1",
+                "vhd": {
+                    "uri": "http://mystorage1.blob.core.windows.net/vhds/myosdisk1.vhd"
+                },
+                "caching": "ReadWrite",
+                "createOption": "FromImage"
+            },
+            "dataDisks": [
+                {
+                    "name": "mydatadisk1",
+                    "diskSizeGB": "1",
+                    "lun": 0,
+                    "vhd": {
+                        "uri": "http://mystorage1.blob.core.windows.net/vhds/mydatadisk1.vhd"
+                    },
+                    "createOption": "Empty"
+                }
+            ]
+        },
+        "osProfile": {
+            "computerName": "myvm1",
+            "adminUsername": "username",
+            "adminPassword": "password",
+            "customData": "",
+            "windowsConfiguration": {
+                "provisionVMAgent": true,
+                "winRM": {
+                    "listeners": [
+                        {
+                            "protocol": "https",
+                            "certificateUrl": "url-to-certificate"
+                        }
+                    ]
+                },
+                "additionalUnattendContent": {
+                    "pass": "oobesystem",
+                    "component": "Microsoft-Windows-Shell-Setup",
+                    "settingName": "FirstLogonCommands|AutoLogon",
+                    "content": "<XML unattend content>"
+                },
+                "enableAutomaticUpdates": true
+            },
+            "secrets": [
+                {
+                    "sourceVault": {
+                        "id": "/subscriptions/{subscription-id}/resourceGroups/myresourcegroup1/providers/Microsoft.KeyVault/vaults/myvault1"
+                    },
+                    "vaultCertificates": [
+                        {
+                            "certificateUrl": "https://myvault1.vault.azure.net/secrets/{secretName}/{secretVersion}",
+                            "certificateStore": "{certificateStoreName}"
+                        }
+                    ]
+                }
+            ]
+        },
+        "networkProfile": {
+            "networkInterfaces": [
+                {
+                    "id": "/subscriptions/{subscription-id}/resourceGroups/myresourceGroup1/providers /Microsoft.Network/networkInterfaces/mynic1"
+                }
+            ]
+        }
+    }
+}

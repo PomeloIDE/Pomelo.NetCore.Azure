@@ -1,0 +1,156 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+
+namespace Pomelo.NetCore.Azure
+{
+    public class VMManagement
+    {
+        public enum RequestResult
+        {
+        }
+
+        Authenticator _authenticator = new Authenticator();
+
+        public void SetAuthInfo(string tenantId, string clientId, string appPassword)
+        {
+            _authenticator.TenantId = tenantId;
+            _authenticator.ClientId = clientId;
+            _authenticator.AppPassword = appPassword;
+        }
+
+        private async Task<bool> CreatePublicIPAddress(string vmname)
+        {
+            var requestByteAry = System.Text.Encoding.UTF8.GetBytes(VMManagementRequestStrings.CREATE_PUBLIC_IP);
+            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+                + "/resourceGroups/pomelo/providers/Microsoft.Network/publicIPAddresses/" + vmname + "?api-version=2016-03-30");
+
+            var result = await _authenticator.Request("PUT", requestUri, "application/json", requestByteAry);
+            return result.StatusCode == HttpStatusCode.Created || result.StatusCode == HttpStatusCode.OK;
+        }
+
+        private async Task<bool> DeletePublicIPAddress(string vmname)
+        {
+            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+                + "/resourceGroups/pomelo/providers/Microsoft.Network/publicIPAddresses/" + vmname + "?api-version=2016-03-30");
+
+            var result = await _authenticator.Request("DELETE", requestUri, string.Empty, new byte[0]);
+            return result.StatusCode == HttpStatusCode.Accepted || result.StatusCode == HttpStatusCode.NoContent;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="vmname"></param>
+        /// <returns></returns>
+        public async Task<Tuple<bool, IPAddress>> GetPublicIPAddress(string vmname)
+        {
+            throw new NotImplementedException();
+        }
+
+        private async Task<bool> CreateNIC(string vmname)
+        {
+            var request = VMManagementRequestStrings.CREATE_NIC.Replace("<vmname>", vmname);
+            var requestByteAry = System.Text.Encoding.UTF8.GetBytes(request);
+            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+                + "/resourceGroups/pomelo/providers/Microsoft.Network/networkInterfaces/" + vmname + "?api-version=2016-03-30");
+
+            var result = await _authenticator.Request("PUT", requestUri, "application/json", requestByteAry);
+            return result.StatusCode == HttpStatusCode.Created || result.StatusCode == HttpStatusCode.OK;
+        }
+
+        private async Task<bool> DeleteNIC(string vmname)
+        {
+            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+                + "/resourceGroups/pomelo/providers/Microsoft.Network/networkInterfaces/" + vmname + "?api-version=2016-03-30");
+
+            var result = await _authenticator.Request("DELETE", requestUri, string.Empty, new byte[0]);
+            return result.StatusCode == HttpStatusCode.Accepted || result.StatusCode == HttpStatusCode.NoContent;
+        }
+
+
+        private async Task<bool> CreateVM(string vmname, string adminname, string adminpasswd)
+        {
+            var request = VMManagementRequestStrings.CREATE_VM.Replace("<vmname>", vmname).Replace("<adminname>", adminname).Replace("<adminpasswd>", adminpasswd);
+            var requestByteAry = System.Text.Encoding.UTF8.GetBytes(request);
+            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+                + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "?api-version=2015-05-01-preview");
+
+            var result = await _authenticator.Request("PUT", requestUri, "application/json", requestByteAry);
+
+            return result.StatusCode == HttpStatusCode.Created || result.StatusCode == HttpStatusCode.OK;
+        }
+
+        private async Task<bool> DeleteVM(string vmname)
+        {
+            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+                + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "?api-version=2015-05-01-preview");
+            var result = await _authenticator.Request("DELETE", requestUri, string.Empty, new byte[0]);
+
+            return result.StatusCode == HttpStatusCode.Accepted || result.StatusCode == HttpStatusCode.OK || result.StatusCode == HttpStatusCode.NotFound;
+        }
+
+        /// <summary>
+        /// Retry 3 times
+        /// </summary>
+        /// <param name="vmname"></param>
+        /// <param name="adminname"></param>
+        /// <param name="adminpasswd"></param>
+        /// <returns></returns>
+        public async Task<bool> CreateVirtualMachineAsync(string vmname, string adminname, string adminpasswd)
+        {
+            var ipaddrsucc = await CreatePublicIPAddress(vmname);
+            if (!ipaddrsucc)
+                return false;
+
+            // wait for provision
+            await Task.Delay(5000);
+
+            var nicsucc = await CreateNIC(vmname);
+            if (!nicsucc)
+                return false;
+
+            await Task.Delay(5000);
+
+            var vmsucc = await CreateVM(vmname, adminname, adminpasswd);
+            if (!vmsucc)
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="vmname"></param>
+        /// <returns></returns>
+        public async Task<bool> DeleteVirtualMachineAsync(string vmname)
+        {
+            var vmsucc = await DeleteVM(vmname);
+            if (!vmsucc)
+                return false;
+
+            var nicsucc = await DeleteNIC(vmname);
+            if (!nicsucc)
+                return false;
+
+            var ipaddrsucc = await DeletePublicIPAddress(vmname);
+            if (!ipaddrsucc)
+                return false;          
+
+            return true;
+        }
+
+        public RequestResult StartVM(string id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public RequestResult StopVM(string id)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
