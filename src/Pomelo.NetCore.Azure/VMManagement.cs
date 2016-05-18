@@ -49,7 +49,7 @@ namespace Pomelo.NetCore.Azure
         /// </summary>
         /// <param name="vmname"></param>
         /// <returns></returns>
-        public async Task<Tuple<bool, IPAddress>> GetPublicIPAddress(string vmname)
+        public async Task<Tuple<bool, IPAddress>> GetPublicIPAddressAsync(string vmname)
         {
             var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
                 + "/resourceGroups/pomelo/providers/Microsoft.Network/publicIPAddresses/" + vmname + "?api-version=2016-03-30");
