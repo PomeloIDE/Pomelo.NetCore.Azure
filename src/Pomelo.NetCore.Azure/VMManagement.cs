@@ -8,19 +8,21 @@ namespace Pomelo.NetCore.Azure
 {
     public class VMManagement
     {
-        public enum RequestResult
-        {
-        }
-
         Authenticator _authenticator = new Authenticator();
 
-        public void SetAuthInfo(string tenantId, string clientId, string appPassword)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <param name="clientId"></param>
+        /// <param name="appPassword"></param>
+        public VMManagement(string tenantId, string clientId, string appPassword)
         {
             _authenticator.TenantId = tenantId;
             _authenticator.ClientId = clientId;
             _authenticator.AppPassword = appPassword;
         }
-
+        
         private async Task<bool> CreatePublicIPAddress(string vmname)
         {
             var requestByteAry = System.Text.Encoding.UTF8.GetBytes(VMManagementRequestStrings.CREATE_PUBLIC_IP);
