@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -49,7 +51,25 @@ namespace Pomelo.NetCore.Azure
         /// <returns></returns>
         public async Task<Tuple<bool, IPAddress>> GetPublicIPAddress(string vmname)
         {
-            throw new NotImplementedException();
+            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+                + "/resourceGroups/pomelo/providers/Microsoft.Network/publicIPAddresses/" + vmname + "?api-version=2016-03-30");
+
+            var result = await _authenticator.Request("GET", requestUri, string.Empty, new byte[0]);
+
+            if (result.StatusCode != HttpStatusCode.OK)
+                return new Tuple<bool, IPAddress>(false, new IPAddress(0));
+
+            try
+            {
+                JToken token = JObject.Parse(result.Content);
+                var ipStr = (string)token.SelectToken("properties").SelectToken("ipAddress");
+                var ipAddr = IPAddress.Parse(ipStr);
+                return new Tuple<bool, IPAddress>(true, ipAddr);
+            }
+            catch (JsonException)
+            {
+                return new Tuple<bool, IPAddress>(false, new IPAddress(0));
+            }
         }
 
         private async Task<bool> CreateNIC(string vmname)

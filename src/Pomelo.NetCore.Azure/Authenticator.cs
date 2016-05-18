@@ -67,11 +67,14 @@ namespace Pomelo.NetCore.Azure
             var request = WebRequest.CreateHttp(uri) as HttpWebRequest;
 
             request.Method = method;
-            request.ContentType = mime;
             request.Headers[HttpRequestHeader.Authorization] = _authorizationHdr;
 
-            var reqStream = await request.GetRequestStreamAsync();
-            reqStream.Write(requestContent, 0, requestContent.Length);
+            if (method != "GET")
+            {
+                request.ContentType = mime;
+                var reqStream = await request.GetRequestStreamAsync();
+                reqStream.Write(requestContent, 0, requestContent.Length);
+            }
 
             HttpWebResponse response;
             try
@@ -97,10 +100,15 @@ namespace Pomelo.NetCore.Azure
                     httpContent.Headers.ContentType.MediaType = mime;
                     var requestMessage = new HttpRequestMessage
                     {
-                        Content = httpContent,
                         Method = new HttpMethod(method),
                         RequestUri = uri
                     };
+
+                    if (method != "GET") 
+                    {
+                        requestMessage.Content = httpContent;
+                    }
+
                     requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(_authorizationHdr);
                     
                     var result = await client.SendAsync(requestMessage);
