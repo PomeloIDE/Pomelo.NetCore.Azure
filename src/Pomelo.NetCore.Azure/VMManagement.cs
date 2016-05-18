@@ -17,9 +17,10 @@ namespace Pomelo.NetCore.Azure
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="tenantId"></param>
-        /// <param name="clientId"></param>
-        /// <param name="appPassword"></param>
+        /// <param name="subscriptionId">Azure Subscription ID</param>
+        /// <param name="tenantId">Tenant ID of App</param>
+        /// <param name="clientId">Client ID of App</param>
+        /// <param name="appPassword">AppPassword of App</param>
         public VMManagement(string subscriptionId, string tenantId, string clientId, string appPassword)
         {
             SubId = subscriptionId;
@@ -48,10 +49,10 @@ namespace Pomelo.NetCore.Azure
         }
 
         /// <summary>
-        /// 
+        /// Get the public IP address of the vm
         /// </summary>
         /// <param name="vmname"></param>
-        /// <returns></returns>
+        /// <returns>Tuple&lt;success, IP Address&gt;</returns>
         public async Task<Tuple<bool, IPAddress>> GetPublicIPAddressAsync(string vmname)
         {
             var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
@@ -124,7 +125,7 @@ namespace Pomelo.NetCore.Azure
         }
 
         /// <summary>
-        /// Retry 3 times if fails
+        /// Retry 3 times if fails.
         /// </summary>
         /// <param name="vmname"></param>
         /// <param name="adminname"></param>
