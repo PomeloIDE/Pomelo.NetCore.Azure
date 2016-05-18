@@ -120,7 +120,7 @@ namespace Pomelo.NetCore.Azure
         }
 
         /// <summary>
-        /// Retry 3 times
+        /// Retry 3 times if fails
         /// </summary>
         /// <param name="vmname"></param>
         /// <param name="adminname"></param>
@@ -264,25 +264,28 @@ namespace Pomelo.NetCore.Azure
                 var result = await _authenticator.Request("GET", requestUri, string.Empty, new byte[0]);
 
                 if (result.StatusCode != HttpStatusCode.OK)
-                    continue;
+                    goto nextLoop;
 
                 try
                 {
                     JToken token = JToken.Parse(result.Content);
                     var statuses = token.SelectToken("statuses") as JArray;
                     if (statuses == null || statuses.Count < 2)
-                        continue;
+                        goto nextLoop;
 
                     var powerState = (string)statuses[1].SelectToken("code");
                     if (powerState == null || powerState != "PowerState/running")
-                        continue;
+                        goto nextLoop;
                     else
                         return true;
                 }
                 catch (JsonException)
                 {
-                    continue;
+                    goto nextLoop;
                 }
+
+                nextLoop:
+                await Task.Delay(1000);
             }
             // Timeout
             return false;
