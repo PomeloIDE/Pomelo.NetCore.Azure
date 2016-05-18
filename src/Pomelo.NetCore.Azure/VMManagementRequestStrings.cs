@@ -10,7 +10,7 @@ namespace Pomelo.NetCore.Azure
         // vm-name, admin-name, admin-passwd
         public const string CREATE_VM =
             @"{
-    ""id"": ""/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a/resourceGroups/Pomelo/providers/Microsoft.Compute/virtualMachines/<vmname>"",
+    ""id"": ""/subscriptions/<subid>/resourceGroups/Pomelo/providers/Microsoft.Compute/virtualMachines/<vmname>"",
     ""name"": ""<vmname>"",
     ""type"": ""Microsoft.Compute/virtualMachines"",
     ""location"": ""japanwest"",
@@ -46,7 +46,7 @@ namespace Pomelo.NetCore.Azure
         ""networkProfile"": {
             ""networkInterfaces"": [
                 {
-                    ""id"": ""/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a/resourceGroups/pomelo/providers/Microsoft.Network/networkInterfaces/<vmname>""
+                    ""id"": ""/subscriptions/<subid>/resourceGroups/pomelo/providers/Microsoft.Network/networkInterfaces/<vmname>""
                 }
             ]
         }
@@ -68,18 +68,18 @@ namespace Pomelo.NetCore.Azure
    ""location"":""japanwest"",
    ""properties"":{  
       ""networkSecurityGroup"":{  
-         ""id"":""/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a/resourceGroups/pomelo/providers/Microsoft.Network/networkSecurityGroups/Pomelo""
+         ""id"":""/subscriptions/<subid>/resourceGroups/pomelo/providers/Microsoft.Network/networkSecurityGroups/Pomelo""
       },
       ""ipConfigurations"":[
          {
             ""name"":""<vmname>"",
             ""properties"":{  
                ""subnet"":{
-                  ""id"":""/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a/resourceGroups/pomelo/providers/Microsoft.Network/virtualNetworks/Pomelo/subnets/default""
+                  ""id"":""/subscriptions/<subid>/resourceGroups/pomelo/providers/Microsoft.Network/virtualNetworks/Pomelo/subnets/default""
                },
                ""privateIPAllocationMethod"":""Dynamic"",
                ""publicIPAddress"":{
-                  ""id"":""/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a/resourceGroups/pomelo/providers/Microsoft.Network/publicIPAddresses/<vmname>""
+                  ""id"":""/subscriptions/<subid>/resourceGroups/pomelo/providers/Microsoft.Network/publicIPAddresses/<vmname>""
                }
             }
          }
@@ -89,7 +89,7 @@ namespace Pomelo.NetCore.Azure
 
         public const string UPDATE_PASSWORD_EXTENSION =
             @"{
-  ""id"":""/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/<vmname>/extensions/VMAccessForLinux"",
+  ""id"":""/subscriptions/<subid>/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/<vmname>/extensions/VMAccessForLinux"",
   ""name"": ""enablevmaccess"",
   ""type"": ""Microsoft.Compute/virtualMachines/extensions"",
   ""location"": ""japanwest"",

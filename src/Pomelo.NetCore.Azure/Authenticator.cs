@@ -60,7 +60,15 @@ namespace Pomelo.NetCore.Azure
         {
             if (DateTime.UtcNow.AddMinutes(-5) > _authorizationExpires || _authorizationHdr == null)
             {
-                await GetAccessToken();
+                // Amamiya: No exception in this module
+                try
+                {
+                    await GetAccessToken();
+                }
+                catch (Exception)
+                {
+                    return new AzureRESTResponse { StatusCode = HttpStatusCode.BadGateway, Content = string.Empty };
+                }
             }
 
 #if NET451

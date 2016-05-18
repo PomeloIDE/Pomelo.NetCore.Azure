@@ -12,14 +12,17 @@ namespace Pomelo.NetCore.Azure
     {
         Authenticator _authenticator = new Authenticator();
 
+        private string SubId { get; set; }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="tenantId"></param>
         /// <param name="clientId"></param>
         /// <param name="appPassword"></param>
-        public VMManagement(string tenantId, string clientId, string appPassword)
+        public VMManagement(string subscriptionId, string tenantId, string clientId, string appPassword)
         {
+            SubId = subscriptionId;
             _authenticator.TenantId = tenantId;
             _authenticator.ClientId = clientId;
             _authenticator.AppPassword = appPassword;
@@ -28,7 +31,7 @@ namespace Pomelo.NetCore.Azure
         private async Task<bool> CreatePublicIPAddress(string vmname)
         {
             var requestByteAry = System.Text.Encoding.UTF8.GetBytes(VMManagementRequestStrings.CREATE_PUBLIC_IP);
-            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+            var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Network/publicIPAddresses/" + vmname + "?api-version=2016-03-30");
 
             var result = await _authenticator.Request("PUT", requestUri, "application/json", requestByteAry);
@@ -37,7 +40,7 @@ namespace Pomelo.NetCore.Azure
 
         private async Task<bool> DeletePublicIPAddress(string vmname)
         {
-            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+            var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Network/publicIPAddresses/" + vmname + "?api-version=2016-03-30");
 
             var result = await _authenticator.Request("DELETE", requestUri, string.Empty, new byte[0]);
@@ -51,7 +54,7 @@ namespace Pomelo.NetCore.Azure
         /// <returns></returns>
         public async Task<Tuple<bool, IPAddress>> GetPublicIPAddressAsync(string vmname)
         {
-            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+            var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Network/publicIPAddresses/" + vmname + "?api-version=2016-03-30");
 
             var result = await _authenticator.Request("GET", requestUri, string.Empty, new byte[0]);
@@ -79,9 +82,9 @@ namespace Pomelo.NetCore.Azure
 
         private async Task<bool> CreateNIC(string vmname)
         {
-            var request = VMManagementRequestStrings.CREATE_NIC.Replace("<vmname>", vmname);
+            var request = VMManagementRequestStrings.CREATE_NIC.Replace("<subid>", SubId).Replace("<vmname>", vmname);
             var requestByteAry = System.Text.Encoding.UTF8.GetBytes(request);
-            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+            var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Network/networkInterfaces/" + vmname + "?api-version=2016-03-30");
 
             var result = await _authenticator.Request("PUT", requestUri, "application/json", requestByteAry);
@@ -90,7 +93,7 @@ namespace Pomelo.NetCore.Azure
 
         private async Task<bool> DeleteNIC(string vmname)
         {
-            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+            var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Network/networkInterfaces/" + vmname + "?api-version=2016-03-30");
 
             var result = await _authenticator.Request("DELETE", requestUri, string.Empty, new byte[0]);
@@ -100,9 +103,10 @@ namespace Pomelo.NetCore.Azure
 
         private async Task<bool> CreateVM(string vmname, string adminname, string adminpasswd)
         {
-            var request = VMManagementRequestStrings.CREATE_VM.Replace("<vmname>", vmname).Replace("<adminname>", adminname).Replace("<adminpasswd>", adminpasswd);
+            var request = VMManagementRequestStrings.CREATE_VM.Replace("<subid>", SubId).Replace("<vmname>", vmname).
+                Replace("<adminname>", adminname).Replace("<adminpasswd>", adminpasswd);
             var requestByteAry = System.Text.Encoding.UTF8.GetBytes(request);
-            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+            var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "?api-version=2015-05-01-preview");
 
             var result = await _authenticator.Request("PUT", requestUri, "application/json", requestByteAry);
@@ -112,7 +116,7 @@ namespace Pomelo.NetCore.Azure
 
         private async Task<bool> DeleteVM(string vmname)
         {
-            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+            var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "?api-version=2015-05-01-preview");
             var result = await _authenticator.Request("DELETE", requestUri, string.Empty, new byte[0]);
 
@@ -177,7 +181,7 @@ namespace Pomelo.NetCore.Azure
         /// <returns></returns>
         public async Task<bool> StartVirtualMachineAsync(string vmname)
         {
-            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+            var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "/start?api-version=2015-05-01-preview");
 
             var result = await _authenticator.Request("POST", requestUri, string.Empty, new byte[0]);
@@ -191,7 +195,7 @@ namespace Pomelo.NetCore.Azure
         /// <returns></returns>
         public async Task<bool> RestartVirtualMachineAsync(string vmname)
         {
-            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+            var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "/restart?api-version=2015-05-01-preview");
 
             var result = await _authenticator.Request("POST", requestUri, string.Empty, new byte[0]);
@@ -205,7 +209,7 @@ namespace Pomelo.NetCore.Azure
         /// <returns></returns>
         public async Task<bool> StopVirtualMachineAsync(string vmname)
         {
-            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+            var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "/powerOff?api-version=2015-05-01-preview");
 
             var result = await _authenticator.Request("POST", requestUri, string.Empty, new byte[0]);
@@ -219,7 +223,7 @@ namespace Pomelo.NetCore.Azure
         /// <returns></returns>
         public async Task<bool> DeallocateVirtualMachineAsync(string vmname)
         {
-            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+            var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "/deallocate?api-version=2015-05-01-preview");
 
             var result = await _authenticator.Request("POST", requestUri, string.Empty, new byte[0]);
@@ -235,11 +239,11 @@ namespace Pomelo.NetCore.Azure
         /// <returns></returns>
         public async Task<bool> UpdateUsernamePassword(string vmname, string username, string password)
         {
-            var request = VMManagementRequestStrings.UPDATE_PASSWORD_EXTENSION.
+            var request = VMManagementRequestStrings.UPDATE_PASSWORD_EXTENSION.Replace("<subid>", SubId).
                 Replace("<vmname>", vmname).Replace("<username>", username).Replace("<password>", password);
             var requestByteAry = System.Text.Encoding.UTF8.GetBytes(request);
 
-            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+            var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "/extensions/enablevmaccess?api-version=2015-05-01-preview");
 
             var result = await _authenticator.Request("PUT", requestUri, "application/json", requestByteAry);
@@ -254,7 +258,7 @@ namespace Pomelo.NetCore.Azure
         /// <returns></returns>
         public async Task<bool> WaitForVirtualMachineStartedAsync(string vmname, int timeoutMillisecond)
         {
-            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+            var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "/InstanceView?api-version=2015-05-01-preview");
 
             DateTime end = timeoutMillisecond == 0 ? DateTime.Now.AddMilliseconds(timeoutMillisecond) : DateTime.MaxValue;
@@ -271,6 +275,10 @@ namespace Pomelo.NetCore.Azure
                     JToken token = JToken.Parse(result.Content);
                     var statuses = token.SelectToken("statuses") as JArray;
                     if (statuses == null || statuses.Count < 2)
+                        goto nextLoop;
+
+                    var provisioningState = (string)statuses[0].SelectToken("code");
+                    if (provisioningState == null || provisioningState != "ProvisioningState/succeeded")
                         goto nextLoop;
 
                     var powerState = (string)statuses[1].SelectToken("code");
