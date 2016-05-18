@@ -25,7 +25,8 @@ namespace Pomelo.NetCore.AzureConsole
             //var result = await mgr.StopVirtualMachineAsync("0031");
             //var result = await mgr.DeallocateVirtualMachineAsync("0031");
             //var result = await mgr.UpdateUsernamePassword("0031", "pomelo", "Pomelo123!@#");
-            var result = await mgr.GetPublicIPAddressAsync("0031");
+            //var result = await mgr.GetPublicIPAddressAsync("0031");
+            var result = await mgr.WaitForVirtualMachineStartedAsync("0031", 30000);
             Console.ReadKey();
         }
     }

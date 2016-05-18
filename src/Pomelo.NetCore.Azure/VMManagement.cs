@@ -24,7 +24,7 @@ namespace Pomelo.NetCore.Azure
             _authenticator.ClientId = clientId;
             _authenticator.AppPassword = appPassword;
         }
-        
+
         private async Task<bool> CreatePublicIPAddress(string vmname)
         {
             var requestByteAry = System.Text.Encoding.UTF8.GetBytes(VMManagementRequestStrings.CREATE_PUBLIC_IP);
@@ -62,7 +62,12 @@ namespace Pomelo.NetCore.Azure
             try
             {
                 JToken token = JObject.Parse(result.Content);
-                var ipStr = (string)token.SelectToken("properties").SelectToken("ipAddress");
+                var properties = token.SelectToken("properties");
+                if (properties == null)
+                    return new Tuple<bool, IPAddress>(false, new IPAddress(0));
+                var ipStr = (string)properties.SelectToken("ipAddress");
+                if (ipStr == null)
+                    return new Tuple<bool, IPAddress>(false, new IPAddress(0));
                 var ipAddr = IPAddress.Parse(ipStr);
                 return new Tuple<bool, IPAddress>(true, ipAddr);
             }
@@ -160,7 +165,7 @@ namespace Pomelo.NetCore.Azure
 
             var ipaddrsucc = await DeletePublicIPAddress(vmname);
             if (!ipaddrsucc)
-                return false;          
+                return false;
 
             return true;
         }
@@ -240,5 +245,49 @@ namespace Pomelo.NetCore.Azure
             var result = await _authenticator.Request("PUT", requestUri, "application/json", requestByteAry);
             return result.StatusCode == HttpStatusCode.Accepted || result.StatusCode == HttpStatusCode.OK;
         }
-    }
-}
+
+        /// <summary>
+        /// NB: if wait for ever while there's a network outage, this func may hang.
+        /// </summary>
+        /// <param name="vmname"></param>
+        /// <param name="timeoutMillisecond">0 to wait forever</param>
+        /// <returns></returns>
+        public async Task<bool> WaitForVirtualMachineStartedAsync(string vmname, int timeoutMillisecond)
+        {
+            var requestUri = new Uri("https://management.azure.com/subscriptions/6fef287b-09fc-4d87-8dc1-bb154aa68b7a"
+                + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "/InstanceView?api-version=2015-05-01-preview");
+
+            DateTime end = timeoutMillisecond == 0 ? DateTime.Now.AddMilliseconds(timeoutMillisecond) : DateTime.MaxValue;
+
+            while (DateTime.Now < end)
+            {
+                var result = await _authenticator.Request("GET", requestUri, string.Empty, new byte[0]);
+
+                if (result.StatusCode != HttpStatusCode.OK)
+                    continue;
+
+                try
+                {
+                    JToken token = JToken.Parse(result.Content);
+                    var statuses = token.SelectToken("statuses") as JArray;
+                    if (statuses == null || statuses.Count < 2)
+                        continue;
+
+                    var powerState = (string)statuses[1].SelectToken("code");
+                    if (powerState == null || powerState != "PowerState/running")
+                        continue;
+                    else
+                        return true;
+                }
+                catch (JsonException)
+                {
+                    continue;
+                }
+            }
+            // Timeout
+            return false;
+        }
+
+    } // End of class
+
+} // End of namespace
