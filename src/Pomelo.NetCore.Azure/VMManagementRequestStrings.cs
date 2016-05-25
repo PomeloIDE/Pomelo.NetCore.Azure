@@ -7,7 +7,7 @@ namespace Pomelo.NetCore.Azure
 {
     internal class VMManagementRequestStrings
     {
-        // vm-name, admin-name, admin-passwd
+        // vmname, adminname, adminpasswd, image
         public const string CREATE_VM =
             @"{
     ""id"": ""/subscriptions/<subid>/resourceGroups/Pomelo/providers/Microsoft.Compute/virtualMachines/<vmname>"",
@@ -19,14 +19,11 @@ namespace Pomelo.NetCore.Azure
             ""vmSize"": ""Basic_A1""
         },
         ""storageProfile"": {
-            ""imageReference"": {
-                ""publisher"": ""Canonical"",
-                ""offer"": ""UbuntuServer"",
-                ""sku"": ""14.04.4-LTS"",
-                ""version"": ""latest""
-            },
             ""osDisk"": {
                 ""name"": ""<vmname>"",
+                ""image"": {
+                    ""uri"": ""<image>""
+                },
                 ""vhd"": {
                     ""uri"": ""http://pomeloide.blob.core.windows.net/vhds/<vmname>.vhd""
                 },

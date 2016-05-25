@@ -12,6 +12,8 @@ namespace Pomelo.NetCore.Azure
     {
         Authenticator _authenticator = new Authenticator();
 
+        public string ImageReference { get; private set; }
+
         private string SubId { get; set; }
 
         /// <summary>
@@ -21,12 +23,13 @@ namespace Pomelo.NetCore.Azure
         /// <param name="tenantId">Tenant ID of App</param>
         /// <param name="clientId">Client ID of App</param>
         /// <param name="appPassword">AppPassword of App</param>
-        public VMManagement(string subscriptionId, string tenantId, string clientId, string appPassword)
+        public VMManagement(string subscriptionId, string tenantId, string clientId, string appPassword, string imgRef)
         {
             SubId = subscriptionId;
             _authenticator.TenantId = tenantId;
             _authenticator.ClientId = clientId;
             _authenticator.AppPassword = appPassword;
+            ImageReference = imgRef;
         }
 
         private async Task<bool> CreatePublicIPAddress(string vmname)
@@ -105,7 +108,7 @@ namespace Pomelo.NetCore.Azure
         private async Task<bool> CreateVM(string vmname, string adminname, string adminpasswd)
         {
             var request = VMManagementRequestStrings.CREATE_VM.Replace("<subid>", SubId).Replace("<vmname>", vmname).
-                Replace("<adminname>", adminname).Replace("<adminpasswd>", adminpasswd);
+                Replace("<adminname>", adminname).Replace("<adminpasswd>", adminpasswd).Replace("<image>", ImageReference);
             var requestByteAry = System.Text.Encoding.UTF8.GetBytes(request);
             var requestUri = new Uri("https://management.azure.com/subscriptions/" + SubId
                 + "/resourceGroups/pomelo/providers/Microsoft.Compute/virtualMachines/" + vmname + "?api-version=2015-05-01-preview");
