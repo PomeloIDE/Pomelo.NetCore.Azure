@@ -21,6 +21,7 @@ namespace Pomelo.NetCore.Azure
         ""storageProfile"": {
             ""osDisk"": {
                 ""name"": ""<vmname>"",
+                ""osType"": ""Linux"",
                 ""image"": {
                     ""uri"": ""<image>""
                 },
